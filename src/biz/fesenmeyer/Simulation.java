@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TreeMap;
@@ -20,27 +21,53 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 
 
-public class Simulation {
+class Simulation {
 	/**
 	 * Future Event List.
 	 */
-	public static final SortedMap<Double, ArrayList<String>> FEL = new TreeMap<>();
-	public static double simulationTime = 0.0;
+	private static final SortedMap<Double, ArrayList<String>> FEL = new TreeMap<>();
+	private static double simulationTime = 0.0;
 	/**
 	 * Mean Time Between Failure.
 	 */
-	public static final double MTBF = 6.0;
-	public static final String FORMAT = "%.1f";
-	public static final double SIMULATION_DURANCE = 14.0;
-	public static double lastMaintenanceEnd = 0.0;
-	public static Machine machine;
-	public static EPRuntime cepRT;
-	public static EPServiceProvider cep;
-	
-	
+	private static double mtbf;
+	private static final String FORMAT = "%.1f";
+	private static double simulationDurance;
+	private static double lastMaintenanceEnd = 0.0;
+	protected static Machine machine;
+	private static EPRuntime cepRT;
+	private static EPServiceProvider cep;
+
+	public static double getLastMaintenanceEnd() {
+		return lastMaintenanceEnd;
+	}
+
+	public static void setLastMaintenanceEnd(double lastMaintenanceEnd) {
+		Simulation.lastMaintenanceEnd = lastMaintenanceEnd;
+	}
+
+	public static double getSimulationTime() {
+		return simulationTime;
+	}
+
+	public static double getMtbf() {
+		return mtbf;
+	}
+
+	public static String getFormat() {
+		return FORMAT;
+	}
+
 	public static void main(String[] args) {
-		initialiseCEP();
+
+		Scanner s = new Scanner(System.in);
+
+		System.out.println("Wie lange ist die MTBF?");
+		mtbf = s.nextDouble();
+		System.out.println("Wieviele Tage soll die Simulation dauern?");
+		simulationDurance = s.nextDouble();
 		
+		initialiseCEP();
 		machine = new Machine();
 	    addToFel(0.1, "Ankunft");
 
@@ -56,9 +83,9 @@ public class Simulation {
 		    	  System.out.println(String.format(FORMAT, key) + " => " + value);
 		    }
 		    
-	    	  System.out.println("WS" + " => " + machine.countWS);
+	    	  System.out.println("WS" + " => " + machine.getCountWS());
 	    	  simulationTime = FEL.firstKey();
-	    	  if(simulationTime > SIMULATION_DURANCE){
+	    	  if(simulationTime > simulationDurance){
 	    		  break;
 	    	  }
 			System.out.println("*****************************************");
@@ -74,9 +101,11 @@ public class Simulation {
 		System.out.println("*****************************************");
 		System.out.println("Simulationsende");
 		System.out.println("*****************************************");
-		System.out.println("Statistik");
+		System.out.println("Statistik:");
 		System.out.println("Verfügbarkeit: "+
-				String.format(FORMAT, calculateAvailability(machine.downTime))+"%");
+				String.format(FORMAT, calculateAvailability(machine.getDownTime()))+"%");
+		System.out.println("durchschnittliche Warteschlangenlänge: "+
+				String.format(FORMAT, getAverageWSLength(machine.getWSLengths())));
 		
 	}
 	
@@ -136,8 +165,8 @@ public class Simulation {
 	}
 	
 	public static double calculateAvailability(Double downTime){
-		double availabilityTime = SIMULATION_DURANCE-downTime;
-		return (availabilityTime/SIMULATION_DURANCE)*100;
+		double availabilityTime = simulationDurance-downTime;
+		return (availabilityTime/simulationDurance)*100;
 	}
 
 	public static int getQualitySum(Queue<Integer> queue){
@@ -146,5 +175,22 @@ public class Simulation {
 			sum+=quality;
 		}
 		return sum;
+	}
+	
+	public static double getAverageWSLength(SortedMap<Double, Integer> WSLengths){
+		double sum = 0.0;
+		SortedMap<Double, Integer> tmpMap = new TreeMap<Double, Integer>();
+		
+		for (Entry<Double, Integer> entry : WSLengths.entrySet()) {
+			Double time = entry.getKey();
+		    Integer wsCount = entry.getValue();
+		    if(tmpMap.size() > 0 && !tmpMap.containsValue(wsCount)){
+		    	sum+= (time-(Double)tmpMap.firstKey()) *(Integer) tmpMap.get(tmpMap.firstKey());
+		    	tmpMap.clear();
+		    }
+		    tmpMap.put(time, wsCount);
+		}
+
+		return sum/simulationDurance;
 	}
 }

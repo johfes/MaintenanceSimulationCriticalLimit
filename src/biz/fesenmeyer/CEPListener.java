@@ -10,13 +10,13 @@ public class CEPListener implements UpdateListener {
 	@Override
 	public void update(EventBean[] newEvents, EventBean[] oldEvents) { 
 		System.out.println("Zu viele schlechte Qualitätswerte");
-		Simulation.machine.status = "wartung";
+		Simulation.machine.setStatus("wartung");
 		double timeToMaintenanceEnd = RandomGenerator.generateNextMaintenanceEnd();
-		Simulation.machine.downTime += timeToMaintenanceEnd;
-		double maintenanceEndTime = Simulation.simulationTime + timeToMaintenanceEnd;
+		Simulation.machine.setDownTime(Simulation.machine.getDownTime()+timeToMaintenanceEnd);
+		double maintenanceEndTime = Simulation.getSimulationTime() + timeToMaintenanceEnd;
 		Simulation.addToFel(maintenanceEndTime, "Wartungsende");
 		System.out.println("Wartung wird begonnen, Wartungsende wurde geplant: "+
-							String.format(Simulation.FORMAT, maintenanceEndTime));
+							String.format(Simulation.getFormat(), maintenanceEndTime));
 		Simulation.initialiseCEP();
 	}
 
