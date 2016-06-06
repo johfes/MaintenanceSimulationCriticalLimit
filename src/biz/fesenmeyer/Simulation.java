@@ -61,8 +61,7 @@ class Simulation {
 	public static void main(String[] args) {
 
 		Scanner s = new Scanner(System.in);
-
-		System.out.println("Wie lange ist die MTBF?");
+		System.out.println("Wie lange ist die MTBF in Tagen?");
 		mtbf = s.nextDouble();
 		System.out.println("Wieviele Tage soll die Simulation dauern?");
 		simulationDurance = s.nextDouble();
