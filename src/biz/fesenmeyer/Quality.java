@@ -1,7 +1,7 @@
 package biz.fesenmeyer;
 
 public class Quality {
-	int value;
+	private int value;
 
 	public Quality(int value){
 		this.value = value;

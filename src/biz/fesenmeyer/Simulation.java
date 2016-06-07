@@ -122,7 +122,7 @@ class Simulation {
 		                                "Quality.win:length(10) " +
 		                                "having sum(value) > 1");
 		
-		cepStatement.addListener(new CEPListener());
+		cepStatement.addListener(new BadQualityListener());
 	}
 	
 	

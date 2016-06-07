@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
-public class CEPListener implements UpdateListener {
+public class BadQualityListener implements UpdateListener {
 
 	@Override
 	public void update(EventBean[] newEvents, EventBean[] oldEvents) { 
@@ -19,5 +19,6 @@ public class CEPListener implements UpdateListener {
 							String.format(Simulation.getFormat(), maintenanceEndTime));
 		Simulation.initialiseCEP();
 	}
-
 }
+
+
